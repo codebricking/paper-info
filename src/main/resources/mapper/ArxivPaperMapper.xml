@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.paper.mapper.ArxivPaperMapper">
+
+    <resultMap id="BaseResultMap" type="com.paper.model.entity.ArxivPaperDO">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="arxivId" column="arxiv_id" jdbcType="VARCHAR"/>
+            <result property="updated" column="updated" jdbcType="TIMESTAMP"/>
+            <result property="published" column="published" jdbcType="TIMESTAMP"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="summary" column="summary" jdbcType="VARCHAR"/>
+            <result property="authors" column="authors" jdbcType="VARCHAR"/>
+            <result property="comment" column="comment" jdbcType="VARCHAR"/>
+            <result property="journalRef" column="journal_ref" jdbcType="VARCHAR"/>
+            <result property="doi" column="doi" jdbcType="VARCHAR"/>
+            <result property="primaryCategory" column="primary_category" jdbcType="VARCHAR"/>
+            <result property="categories" column="categories" jdbcType="VARCHAR"/>
+            <result property="pdfUrl" column="pdf_url" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,arxiv_id,updated,
+        published,title,summary,
+        authors,comment,journal_ref,
+        doi,primary_category,categories,
+        pdf_url,create_time,update_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from arxiv_paper
+        where  id = #{id,jdbcType=INTEGER} 
+    </select>
+    <select id="listAll" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from arxiv_paper
+    </select>
+    <select id="listPage" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from arxiv_paper order by id desc limit #{start}, #{pageSize}
+    </select>
+    <select id="listArxivNotTranslatedPaper" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from arxiv_paper a where a.arxiv_id not in ( select p.paper_id from paper_info p)  order by  id limit #{num}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from arxiv_paper
+        where  id = #{id,jdbcType=INTEGER} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.paper.model.entity.ArxivPaperDO" useGeneratedKeys="true">
+        insert into arxiv_paper
+        ( id,arxiv_id,updated
+        ,published,title,summary
+        ,authors,comment,journal_ref
+        ,doi,primary_category,categories
+        ,pdf_url,create_time,update_time
+        )
+        values (#{id,jdbcType=INTEGER},#{arxivId,jdbcType=VARCHAR},#{updated,jdbcType=TIMESTAMP}
+        ,#{published,jdbcType=TIMESTAMP},#{title,jdbcType=VARCHAR},#{summary,jdbcType=VARCHAR}
+        ,#{authors,jdbcType=VARCHAR},#{comment,jdbcType=VARCHAR},#{journalRef,jdbcType=VARCHAR}
+        ,#{doi,jdbcType=VARCHAR},#{primaryCategory,jdbcType=VARCHAR},#{categories,jdbcType=VARCHAR}
+        ,#{pdfUrl,jdbcType=VARCHAR},#{createTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.paper.model.entity.ArxivPaperDO" useGeneratedKeys="true">
+        insert into arxiv_paper
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="arxivId != null">arxiv_id,</if>
+                <if test="updated != null">updated,</if>
+                <if test="published != null">published,</if>
+                <if test="title != null">title,</if>
+                <if test="summary != null">summary,</if>
+                <if test="authors != null">authors,</if>
+                <if test="comment != null">comment,</if>
+                <if test="journalRef != null">journal_ref,</if>
+                <if test="doi != null">doi,</if>
+                <if test="primaryCategory != null">primary_category,</if>
+                <if test="categories != null">categories,</if>
+                <if test="pdfUrl != null">pdf_url,</if>
+                <if test="createTime != null">create_time,</if>
+                <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=INTEGER},</if>
+                <if test="arxivId != null">#{arxivId,jdbcType=VARCHAR},</if>
+                <if test="updated != null">#{updated,jdbcType=TIMESTAMP},</if>
+                <if test="published != null">#{published,jdbcType=TIMESTAMP},</if>
+                <if test="title != null">#{title,jdbcType=VARCHAR},</if>
+                <if test="summary != null">#{summary,jdbcType=VARCHAR},</if>
+                <if test="authors != null">#{authors,jdbcType=VARCHAR},</if>
+                <if test="comment != null">#{comment,jdbcType=VARCHAR},</if>
+                <if test="journalRef != null">#{journalRef,jdbcType=VARCHAR},</if>
+                <if test="doi != null">#{doi,jdbcType=VARCHAR},</if>
+                <if test="primaryCategory != null">#{primaryCategory,jdbcType=VARCHAR},</if>
+                <if test="categories != null">#{categories,jdbcType=VARCHAR},</if>
+                <if test="pdfUrl != null">#{pdfUrl,jdbcType=VARCHAR},</if>
+                <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
+                <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+    <insert id="insertArxivPapers" parameterType="java.util.List">
+        INSERT IGNORE INTO arxiv_paper (arxiv_id, updated, published, title, summary, authors, comment, journal_ref, doi, primary_category, categories, pdf_url)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.arxivId}, #{item.updated}, #{item.published}, #{item.title}, #{item.summary}, #{item.authors}, #{item.comment}, #{item.journalRef}, #{item.doi}, #{item.primaryCategory}, #{item.categories}, #{item.pdfUrl})
+        </foreach>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.paper.model.entity.ArxivPaperDO">
+        update arxiv_paper
+        <set>
+                <if test="arxivId != null">
+                    arxiv_id = #{arxivId,jdbcType=VARCHAR},
+                </if>
+                <if test="updated != null">
+                    updated = #{updated,jdbcType=TIMESTAMP},
+                </if>
+                <if test="published != null">
+                    published = #{published,jdbcType=TIMESTAMP},
+                </if>
+                <if test="title != null">
+                    title = #{title,jdbcType=VARCHAR},
+                </if>
+                <if test="summary != null">
+                    summary = #{summary,jdbcType=VARCHAR},
+                </if>
+                <if test="authors != null">
+                    authors = #{authors,jdbcType=VARCHAR},
+                </if>
+                <if test="comment != null">
+                    comment = #{comment,jdbcType=VARCHAR},
+                </if>
+                <if test="journalRef != null">
+                    journal_ref = #{journalRef,jdbcType=VARCHAR},
+                </if>
+                <if test="doi != null">
+                    doi = #{doi,jdbcType=VARCHAR},
+                </if>
+                <if test="primaryCategory != null">
+                    primary_category = #{primaryCategory,jdbcType=VARCHAR},
+                </if>
+                <if test="categories != null">
+                    categories = #{categories,jdbcType=VARCHAR},
+                </if>
+                <if test="pdfUrl != null">
+                    pdf_url = #{pdfUrl,jdbcType=VARCHAR},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime,jdbcType=TIMESTAMP},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.paper.model.entity.ArxivPaperDO">
+        update arxiv_paper
+        set 
+            arxiv_id =  #{arxivId,jdbcType=VARCHAR},
+            updated =  #{updated,jdbcType=TIMESTAMP},
+            published =  #{published,jdbcType=TIMESTAMP},
+            title =  #{title,jdbcType=VARCHAR},
+            summary =  #{summary,jdbcType=VARCHAR},
+            authors =  #{authors,jdbcType=VARCHAR},
+            comment =  #{comment,jdbcType=VARCHAR},
+            journal_ref =  #{journalRef,jdbcType=VARCHAR},
+            doi =  #{doi,jdbcType=VARCHAR},
+            primary_category =  #{primaryCategory,jdbcType=VARCHAR},
+            categories =  #{categories,jdbcType=VARCHAR},
+            pdf_url =  #{pdfUrl,jdbcType=VARCHAR},
+            create_time =  #{createTime,jdbcType=TIMESTAMP},
+            update_time =  #{updateTime,jdbcType=TIMESTAMP}
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+</mapper>

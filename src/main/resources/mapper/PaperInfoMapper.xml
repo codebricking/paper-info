@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.paper.mapper.PaperInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.paper.model.entity.PaperInfo">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="paperUrl" column="paper_url" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="titleCn" column="title_cn" jdbcType="VARCHAR"/>
+        <result property="summary" column="summary" jdbcType="VARCHAR"/>
+        <result property="summaryCn" column="summary_cn" jdbcType="VARCHAR"/>
+        <result property="summaryBrief" column="summary_brief" jdbcType="VARCHAR"/>
+        <result property="keyWords" column="key_words" jdbcType="VARCHAR"/>
+        <result property="keyWordsCn" column="key_words_cn" jdbcType="VARCHAR"/>
+        <result property="pdfUrl" column="pdf_url" jdbcType="VARCHAR"/>
+        <result property="conferenceName" column="conference_name" jdbcType="VARCHAR"/>
+        <result property="authors" column="authors" jdbcType="VARCHAR"/>
+        <result property="primaryCategory" column="primary_category" jdbcType="VARCHAR"/>
+        <result property="categories" column="categories" jdbcType="VARCHAR"/>
+        <result property="published" column="published" jdbcType="TIMESTAMP"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,paper_url,title,
+        title_cn,summary,summary_cn,
+        summary_brief,key_words,key_words_cn,
+        pdf_url,conference_name,authors,
+        primary_category,categories,published,
+        create_time,update_time
+    </sql>
+
+    <select id="getLatestPaperInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from paper_info
+        order by id desc limit #{start}, #{pageSize}
+    </select>
+    <select id="searchPaperInfo" resultMap="BaseResultMap">
+        SELECT<include refid="Base_Column_List"/>, MATCH(summary) AGAINST (#{searchText,jdbcType=VARCHAR} IN BOOLEAN
+        MODE) AS relevance
+        FROM paper_info
+        WHERE MATCH(summary) AGAINST (#{searchText,jdbcType=VARCHAR} IN BOOLEAN MODE)
+        ORDER BY relevance DESC limit #{start}, #{pageSize}
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from paper_info
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="existsIgnoreCase" resultType="java.lang.Integer">
+        SELECT 1
+        FROM paper_info
+        WHERE LOWER(title) = LOWER(#{title}) LIMIT 1
+    </select>
+    <select id="getUnSummarised" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from paper_info where paper_info.summary_cn is null  limit #{batchSize}
+
+    </select>
+    <select id="getValidPaperInfo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from paper_info where summary_cn is not null
+        and summary_cn is not null and summary_brief is not null ;
+    </select>
+    <select id="getByTimeSec" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from paper_info
+        WHERE #{seconds} > TIMESTAMPDIFF(SECOND, update_time, NOW());
+    </select>
+    <select id="getUnSummarisedByAbstract" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from paper_info
+        where summary_brief is null limit #{batchSize};
+
+    </select>
+    <select id="getUnTranslatedAbstract" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from paper_info
+        where summary_cn is null limit #{batchSize};
+    </select>
+    <select id="getUnTranslatedTitle" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from paper_info
+        where title_cn is null limit #{batchSize};
+    </select>
+    <select id="existId" resultType="java.lang.Integer">
+        SELECT 1
+        FROM paper_info
+        WHERE id = #{id} LIMIT 1
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from paper_info
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.paper.model.entity.PaperInfo"
+            useGeneratedKeys="true">
+        insert into paper_info
+        ( id, paper_url, title
+        , title_cn, summary, summary_cn
+        , summary_brief, key_words, key_words_cn
+        , pdf_url, conference_name, authors
+        , primary_category, categories, published
+        , create_time, update_time)
+        values ( #{id,jdbcType=INTEGER}, #{paperUrl,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}
+               , #{titleCn,jdbcType=VARCHAR}, #{summary,jdbcType=VARCHAR}, #{summaryCn,jdbcType=VARCHAR}
+               , #{summaryBrief,jdbcType=VARCHAR}, #{keyWords,jdbcType=VARCHAR}, #{keyWordsCn,jdbcType=VARCHAR}
+               , #{pdfUrl,jdbcType=VARCHAR}, #{conferenceName,jdbcType=VARCHAR}, #{authors,jdbcType=VARCHAR}
+               , #{primaryCategory,jdbcType=VARCHAR}, #{categories,jdbcType=VARCHAR}, #{published,jdbcType=TIMESTAMP}
+               , #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.paper.model.entity.PaperInfo"
+            useGeneratedKeys="true">
+        insert into paper_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="paperUrl != null">paper_url,</if>
+            <if test="title != null">title,</if>
+            <if test="titleCn != null">title_cn,</if>
+            <if test="summary != null">summary,</if>
+            <if test="summaryCn != null">summary_cn,</if>
+            <if test="summaryBrief != null">summary_brief,</if>
+            <if test="keyWords != null">key_words,</if>
+            <if test="keyWordsCn != null">key_words_cn,</if>
+            <if test="pdfUrl != null">pdf_url,</if>
+            <if test="conferenceName != null">conference_name,</if>
+            <if test="authors != null">authors,</if>
+            <if test="primaryCategory != null">primary_category,</if>
+            <if test="categories != null">categories,</if>
+            <if test="published != null">published,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id,jdbcType=INTEGER},</if>
+            <if test="paperUrl != null">#{paperUrl,jdbcType=VARCHAR},</if>
+            <if test="title != null">#{title,jdbcType=VARCHAR},</if>
+            <if test="titleCn != null">#{titleCn,jdbcType=VARCHAR},</if>
+            <if test="summary != null">#{summary,jdbcType=VARCHAR},</if>
+            <if test="summaryCn != null">#{summaryCn,jdbcType=VARCHAR},</if>
+            <if test="summaryBrief != null">#{summaryBrief,jdbcType=VARCHAR},</if>
+            <if test="keyWords != null">#{keyWords,jdbcType=VARCHAR},</if>
+            <if test="keyWordsCn != null">#{keyWordsCn,jdbcType=VARCHAR},</if>
+            <if test="pdfUrl != null">#{pdfUrl,jdbcType=VARCHAR},</if>
+            <if test="conferenceName != null">#{conferenceName,jdbcType=VARCHAR},</if>
+            <if test="authors != null">#{authors,jdbcType=VARCHAR},</if>
+            <if test="primaryCategory != null">#{primaryCategory,jdbcType=VARCHAR},</if>
+            <if test="categories != null">#{categories,jdbcType=VARCHAR},</if>
+            <if test="published != null">#{published,jdbcType=TIMESTAMP},</if>
+            <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
+            <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.paper.model.entity.PaperInfo">
+        update paper_info
+        <set>
+            <if test="paperUrl != null">
+                paper_url = #{paperUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="titleCn != null">
+                title_cn = #{titleCn,jdbcType=VARCHAR},
+            </if>
+            <if test="summary != null">
+                summary = #{summary,jdbcType=VARCHAR},
+            </if>
+            <if test="summaryCn != null">
+                summary_cn = #{summaryCn,jdbcType=VARCHAR},
+            </if>
+            <if test="summaryBrief != null">
+                summary_brief = #{summaryBrief,jdbcType=VARCHAR},
+            </if>
+            <if test="keyWords != null">
+                key_words = #{keyWords,jdbcType=VARCHAR},
+            </if>
+            <if test="keyWordsCn != null">
+                key_words_cn = #{keyWordsCn,jdbcType=VARCHAR},
+            </if>
+            <if test="pdfUrl != null">
+                pdf_url = #{pdfUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="conferenceName != null">
+                conference_name = #{conferenceName,jdbcType=VARCHAR},
+            </if>
+            <if test="authors != null">
+                authors = #{authors,jdbcType=VARCHAR},
+            </if>
+            <if test="primaryCategory != null">
+                primary_category = #{primaryCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="categories != null">
+                categories = #{categories,jdbcType=VARCHAR},
+            </if>
+            <if test="published != null">
+                published = #{published,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.paper.model.entity.PaperInfo">
+        update paper_info
+        set paper_url        = #{paperUrl,jdbcType=VARCHAR},
+            title            = #{title,jdbcType=VARCHAR},
+            title_cn         = #{titleCn,jdbcType=VARCHAR},
+            summary          = #{summary,jdbcType=VARCHAR},
+            summary_cn       = #{summaryCn,jdbcType=VARCHAR},
+            summary_brief    = #{summaryBrief,jdbcType=VARCHAR},
+            key_words        = #{keyWords,jdbcType=VARCHAR},
+            key_words_cn     = #{keyWordsCn,jdbcType=VARCHAR},
+            pdf_url          = #{pdfUrl,jdbcType=VARCHAR},
+            conference_name  = #{conferenceName,jdbcType=VARCHAR},
+            authors          = #{authors,jdbcType=VARCHAR},
+            primary_category = #{primaryCategory,jdbcType=VARCHAR},
+            categories       = #{categories,jdbcType=VARCHAR},
+            published        = #{published,jdbcType=TIMESTAMP},
+            create_time      = #{createTime,jdbcType=TIMESTAMP},
+            update_time      = #{updateTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateSummaryCnByKey">
+        update paper_info
+        set summary_cn = #{summaryCn,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateRemark">
+        update paper_info
+        set remark = #{remark,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateTitleCnByKey">
+        update paper_info
+        set title_cn = #{titleCn,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateAbstractCnByKey">
+        update paper_info
+        set summary_cn = #{summaryCn,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+
+    </update>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.paper.mapper.TopConferenceMapper">
+
+    <resultMap id="BaseResultMap" type="com.paper.model.entity.TopConference">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="paperUrl" column="paper_url" jdbcType="VARCHAR"/>
+            <result property="paperAbstract" column="paper_abstract" jdbcType="VARCHAR"/>
+            <result property="authors" column="authors" jdbcType="VARCHAR"/>
+            <result property="arxivId" column="arxiv_id" jdbcType="VARCHAR"/>
+            <result property="pdfUrl" column="pdf_url" jdbcType="VARCHAR"/>
+            <result property="conferenceName" column="conference_name" jdbcType="VARCHAR"/>
+            <result property="publishedTime" column="published_time" jdbcType="TIMESTAMP"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,title,paper_url,
+        paper_abstract,authors,arxiv_id,
+        pdf_url,conference_name,published_time,
+        create_time,update_time
+    </sql>
+    <select id="getUnConvTopConference" resultMap="BaseResultMap">
+        SELECT t.*
+        FROM top_conference t
+        LEFT JOIN paper_info p ON t.title = p.title
+        WHERE p.title IS NULL limit #{batchSize};
+
+    </select>
+
+
+</mapper>
