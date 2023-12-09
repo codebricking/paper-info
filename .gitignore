@@ -90,7 +90,6 @@ fabric.properties
 /.mvn/
 /API-Reverse-Proxy/
 target/
-test/
 META-INF/
 
 # other files

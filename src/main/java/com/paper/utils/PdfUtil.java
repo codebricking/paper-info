@@ -15,6 +15,7 @@ public class PdfUtil {
         // 提取文本
         List<String> textList = new ArrayList<>();
         extractor.extractText(textList);
+        document.close();
         return textList;
     }
 }

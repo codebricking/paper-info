@@ -59,9 +59,11 @@ public class TopConferenceServiceImpl extends ServiceImpl<TopConferenceMapper, T
         return paperInfos;
     }
     @Override
-    public List<TopConference> getNoFullTextTopConference(){
+    public List<TopConference> getNoFullTextTopConference(int batchSize, int conferenceYear, String conferenceName){
         QueryWrapper<TopConference> qw = new QueryWrapper<>();
-        qw.isNull("full_text").last("limit 1");
+        qw.eq("conference_year",conferenceYear);
+        qw.eq("conference_name",conferenceName);
+        qw.isNull("full_text").last("limit " + batchSize);
         List<TopConference> list = list(qw);
         return list;
     }
