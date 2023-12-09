@@ -7,6 +7,7 @@ import com.paper.mapper.TopConferenceMapper;
 import com.paper.model.entity.PaperInfo;
 import com.paper.model.entity.TopConference;
 import com.paper.service.TopConferenceService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -59,9 +60,15 @@ public class TopConferenceServiceImpl extends ServiceImpl<TopConferenceMapper, T
         return paperInfos;
     }
     @Override
-    public List<TopConference> getNoFullTextTopConference(int batchSize, int conferenceYear){
+    public List<TopConference> getNoFullTextTopConference(int batchSize, int conferenceYear, String confName){
         QueryWrapper<TopConference> qw = new QueryWrapper<>();
-        qw.eq("conference_year",conferenceYear);
+
+        if (conferenceYear != 0){
+            qw.eq("conference_year",conferenceYear);
+        }
+        if (StringUtils.isNotBlank(confName)){
+            qw.eq("conference_name",confName);
+        }
         qw.isNull("full_text").last("limit " + batchSize);
         List<TopConference> list = list(qw);
         return list;

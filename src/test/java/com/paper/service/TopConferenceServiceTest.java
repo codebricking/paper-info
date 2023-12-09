@@ -9,10 +9,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.paper.model.entity.TopConference;
 import com.paper.utils.DownloadUtil;
 import com.paper.utils.PdfUtil;
+import com.paper.utils.ZipUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,37 +34,21 @@ class TopConferenceServiceTest {
      */
     @Test
     public void downloadAndParseFullTextV1(){
-        downloadAndParseFullText(2022);
-    }
-
-    @Test
-    public void downloadAndParseFullTextV2(){
-        downloadAndParseFullText(2021);
-    }
-
-    @Test
-    public void downloadAndParseFullTextV3(){
-        downloadAndParseFullText(2020);
-    }
-
-    @Test
-    public void downloadAndParseFullTextV4(){
-        downloadAndParseFullText(2019);
-    }
-
-    @Test
-    public void downloadAndParseFullTextV5(){
-        downloadAndParseFullText(2013);
+        downloadAndParseFullText(0,null);
     }
 
 
-    public void downloadAndParseFullText(int year){
+
+
+
+
+    public void downloadAndParseFullText(int year,String confName){
         int count = 10;
         int batchSize = 500;
         while (count > 0){
             count--;
 
-            List<TopConference> noFullTextTopConference = topConferenceService.getNoFullTextTopConference(batchSize,year);
+            List<TopConference> noFullTextTopConference = topConferenceService.getNoFullTextTopConference(batchSize,year,confName);
             if (noFullTextTopConference.isEmpty()){
                 break;
             }
@@ -171,6 +157,30 @@ class TopConferenceServiceTest {
             obj.putIfAbsent("file_name",topConference.getId() + ".pdf");
             writer.write(obj.toString() + "\n", true);
         }
+    }
+
+    @Test
+    public void createZipFile(){
+
+        File baseFolder = new File(baseSaveDir);
+        File[] files = baseFolder.listFiles();
+        for (File file : files) {//年份
+            if (!file.isDirectory()){
+                continue;
+            }
+            for (File fi : file.listFiles()) {// 会议名字
+                if (!fi.isDirectory()){
+                    continue;
+                }
+                String absolutePath = fi.getAbsolutePath();
+                String outZipFile = absolutePath.replace("E:", "F:") + ".zip";
+                System.out.println(absolutePath+"=>" +outZipFile);
+                ZipUtil.zipFolder(absolutePath,outZipFile);
+
+            }
+        }
+
+
     }
 
 
