@@ -52,28 +52,19 @@ class TopConferenceServiceTest {
 
     @Test
     public void downloadAndParseFullTextV5(){
-        downloadAndParseFullText(2018);
+        downloadAndParseFullText(2013);
     }
-    @Test
-    public void downloadAndParseFullTextV6(){
-        downloadAndParseFullText(2017);
-    }
-
 
 
     public void downloadAndParseFullText(int year){
-        int count = 100;
-        int batchSize = 10;
-
-        List<String> conferenceNameList = Arrays.asList("CVPR", "AAAI", "AISTATS","JMLR","NIPS","ECCV","ACML","COLT","ICML","WACV","ICCV");
-
+        int count = 10;
+        int batchSize = 500;
         while (count > 0){
             count--;
-            int confIndex = count % conferenceNameList.size();
-            String randomConference = conferenceNameList.get(confIndex);
-            List<TopConference> noFullTextTopConference = topConferenceService.getNoFullTextTopConference(batchSize,year,randomConference);
+
+            List<TopConference> noFullTextTopConference = topConferenceService.getNoFullTextTopConference(batchSize,year);
             if (noFullTextTopConference.isEmpty()){
-                continue;
+                break;
             }
             for (TopConference topConference : noFullTextTopConference) {
                 Integer conferenceYear = topConference.getConferenceYear();
