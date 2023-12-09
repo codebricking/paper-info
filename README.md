@@ -63,11 +63,15 @@ hutool
 
 
 
+可以将自己关注的领域的文章导入（JSON数据链接：https://pan.baidu.com/s/1Y3IlR0N2phD6AlKWfkXAdQ 
+提取码：umgd），调用接口进行翻译和核心内容提取。
+
 ## 使用ChatGPT等大模型
 
 本项目所积累的数据还可以作为和大模型对话的个人数据，将其上传到大模型中，利用ChatGPT或者阿里云等服务自带的向量数据库，可以直接与论文进行对话。
 
-JSON数据链接：
+JSON数据链接：https://pan.baidu.com/s/1Y3IlR0N2phD6AlKWfkXAdQ 
+提取码：umgd
 
 ### 创建一个ChatGPT助手
 
@@ -104,6 +108,8 @@ JSON数据链接：
 | 2014 | 474  | 121     | 25   | 58   | 302  | 540  | 0    | 0    | 0    | 120  | 406  | 2046 |
 | 2013 | 276  | 71      | 32   | 50   | 281  | 471  | 454  | 0    | 0    | 115  | 357  | 2107 |
 
+
+
 详细列表见
 
 data/paper/
@@ -125,13 +131,15 @@ data/paper/
 
 ## pfd文件
 
-
+链接：https://pan.baidu.com/s/1FKK27KgbYHm_2n5iDy3WZA 
+提取码：z8a9
 
 
 
 ## json文件
 
-
+JSON数据链接：https://pan.baidu.com/s/1Y3IlR0N2phD6AlKWfkXAdQ 
+提取码：umgd
 
 
 
