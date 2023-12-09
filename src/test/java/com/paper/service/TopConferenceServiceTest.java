@@ -179,9 +179,40 @@ class TopConferenceServiceTest {
 
             }
         }
+    }
 
+    @Test
+    public void createJson(){
+        File baseFolder = new File(baseSaveDir);
+        File[] files = baseFolder.listFiles();
+        for (File file : files) {//年份
+            if (!file.isDirectory()) {
+                continue;
+            }
+            String year = file.getName();
+            for (File fi : file.listFiles()) {// 会议名字
+                if (!fi.isDirectory()) {
+                    continue;
+                }
+                String conferenceName = fi.getName();
+                System.out.println("year = " + year + "conferenceName = " + conferenceName);
+                QueryWrapper<TopConference> qw = new QueryWrapper<>();
+                qw.eq("conference_year",Integer.valueOf(year));
+                qw.eq("conference_name", conferenceName);
+                List<TopConference> topConferenceList = topConferenceService.list(qw).stream().filter(t -> t.getFullText().length() > 100).collect(Collectors.toList());
+                String jsonPrettyStr = JSONUtil.toJsonPrettyStr(topConferenceList);
+                String outputFIle = "F:\\temp\\paper\\topConferenceJson\\" + year +"\\" + conferenceName +".json";
+                JSONUtil.toJsonPrettyStr(topConferenceList);
+                FileWriter writer = new FileWriter(outputFIle);
+                writer.write(jsonPrettyStr);
+
+            }
+
+        }
 
     }
+
+
 
 
 
