@@ -9,10 +9,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.paper.model.entity.TopConference;
 import com.paper.utils.DownloadUtil;
 import com.paper.utils.PdfUtil;
+import com.paper.utils.ZipUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,48 +34,23 @@ class TopConferenceServiceTest {
      */
     @Test
     public void downloadAndParseFullTextV1(){
-        downloadAndParseFullText(2022);
-    }
-
-    @Test
-    public void downloadAndParseFullTextV2(){
-        downloadAndParseFullText(2021);
-    }
-
-    @Test
-    public void downloadAndParseFullTextV3(){
-        downloadAndParseFullText(2020);
-    }
-
-    @Test
-    public void downloadAndParseFullTextV4(){
-        downloadAndParseFullText(2019);
-    }
-
-    @Test
-    public void downloadAndParseFullTextV5(){
-        downloadAndParseFullText(2018);
-    }
-    @Test
-    public void downloadAndParseFullTextV6(){
-        downloadAndParseFullText(2017);
+        downloadAndParseFullText(0,null);
     }
 
 
 
-    public void downloadAndParseFullText(int year){
-        int count = 100;
-        int batchSize = 10;
 
-        List<String> conferenceNameList = Arrays.asList("CVPR", "AAAI", "AISTATS","JMLR","NIPS","ECCV","ACML","COLT","ICML","WACV","ICCV");
 
+
+    public void downloadAndParseFullText(int year,String confName){
+        int count = 10;
+        int batchSize = 500;
         while (count > 0){
             count--;
-            int confIndex = count % conferenceNameList.size();
-            String randomConference = conferenceNameList.get(confIndex);
-            List<TopConference> noFullTextTopConference = topConferenceService.getNoFullTextTopConference(batchSize,year,randomConference);
+
+            List<TopConference> noFullTextTopConference = topConferenceService.getNoFullTextTopConference(batchSize,year,confName);
             if (noFullTextTopConference.isEmpty()){
-                continue;
+                break;
             }
             for (TopConference topConference : noFullTextTopConference) {
                 Integer conferenceYear = topConference.getConferenceYear();
@@ -181,6 +158,61 @@ class TopConferenceServiceTest {
             writer.write(obj.toString() + "\n", true);
         }
     }
+
+    @Test
+    public void createZipFile(){
+
+        File baseFolder = new File(baseSaveDir);
+        File[] files = baseFolder.listFiles();
+        for (File file : files) {//年份
+            if (!file.isDirectory()){
+                continue;
+            }
+            for (File fi : file.listFiles()) {// 会议名字
+                if (!fi.isDirectory()){
+                    continue;
+                }
+                String absolutePath = fi.getAbsolutePath();
+                String outZipFile = absolutePath.replace("E:", "F:") + ".zip";
+                System.out.println(absolutePath+"=>" +outZipFile);
+                ZipUtil.zipFolder(absolutePath,outZipFile);
+
+            }
+        }
+    }
+
+    @Test
+    public void createJson(){
+        File baseFolder = new File(baseSaveDir);
+        File[] files = baseFolder.listFiles();
+        for (File file : files) {//年份
+            if (!file.isDirectory()) {
+                continue;
+            }
+            String year = file.getName();
+            for (File fi : file.listFiles()) {// 会议名字
+                if (!fi.isDirectory()) {
+                    continue;
+                }
+                String conferenceName = fi.getName();
+                System.out.println("year = " + year + "conferenceName = " + conferenceName);
+                QueryWrapper<TopConference> qw = new QueryWrapper<>();
+                qw.eq("conference_year",Integer.valueOf(year));
+                qw.eq("conference_name", conferenceName);
+                List<TopConference> topConferenceList = topConferenceService.list(qw).stream().filter(t -> t.getFullText().length() > 100).collect(Collectors.toList());
+                String jsonPrettyStr = JSONUtil.toJsonPrettyStr(topConferenceList);
+                String outputFIle = "F:\\temp\\paper\\topConferenceJson\\" + year +"\\" + conferenceName +".json";
+                JSONUtil.toJsonPrettyStr(topConferenceList);
+                FileWriter writer = new FileWriter(outputFIle);
+                writer.write(jsonPrettyStr);
+
+            }
+
+        }
+
+    }
+
+
 
 
 

@@ -65,6 +65,10 @@ hutool
 
 ## 使用ChatGPT等大模型
 
+本项目所积累的数据还可以作为和大模型对话的个人数据，将其上传到大模型中，利用ChatGPT或者阿里云等服务自带的向量数据库，可以直接与论文进行对话。
+
+JSON数据链接：
+
 ### 创建一个ChatGPT助手
 
 1. 进入 https://platform.openai.com/assistants
@@ -116,6 +120,18 @@ data/paper/
 | [top_conference_2020.md]() | 1.5 MB |
 | [top_conference_2021.md]() | 1.5 MB |
 | [top_conference_2022.md]() | 1.5 MB |
+
+# 百度网盘
+
+## pfd文件
+
+
+
+
+
+## json文件
+
+
 
 
 

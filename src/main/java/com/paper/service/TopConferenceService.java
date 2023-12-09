@@ -21,5 +21,5 @@ public interface TopConferenceService extends IService<TopConference> {
 
     List<PaperInfo> convertTopConferenceToPaperInfo(int batchSize);
 
-    List<TopConference> getNoFullTextTopConference(int batchSize, int conferenceYear, String conferenceName);
+    List<TopConference> getNoFullTextTopConference(int batchSize, int conferenceYear, String confName);
 }
